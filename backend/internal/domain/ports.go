@@ -1,6 +1,9 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type UserRepository interface {
 	GetByID(ctx context.Context, id UserID) (*User, error)
@@ -17,6 +20,12 @@ type MiningPlanRepository interface {
 
 type MiningSessionRepository interface {
 	GetByID(ctx context.Context, id MiningSessionID) (*MiningSession, error)
+}
+
+type MiningIntervalRepository interface {
+	Open(ctx context.Context, interval MiningInterval) error
+	CloseOpen(ctx context.Context, sessionID MiningSessionID, endedAt time.Time) error
+	ListBySession(ctx context.Context, sessionID MiningSessionID) ([]MiningInterval, error)
 }
 
 type LedgerRepository interface {

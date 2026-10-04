@@ -25,6 +25,15 @@ func (s *sessionStore) Create(_ context.Context, session domain.MiningSession) e
 	return nil
 }
 
+func (s *sessionStore) GetByID(context.Context, domain.MiningSessionID) (*domain.MiningSession, error) {
+	return s.created, nil
+}
+
+func (s *sessionStore) Update(_ context.Context, session domain.MiningSession) error {
+	s.created = &session
+	return nil
+}
+
 func TestStartMiningSessionUsesServerTimeAndPlanVersion(t *testing.T) {
 	now := time.Date(2026, 10, 4, 10, 20, 30, 123, time.FixedZone("WIB", 7*60*60))
 	plan := &domain.MiningPlan{ID: "plan-1", AssetID: "asset-1", Version: 7, Status: "active"}

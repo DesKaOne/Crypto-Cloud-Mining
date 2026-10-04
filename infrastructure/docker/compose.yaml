@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: crypto_cloud_mining
+      POSTGRES_USER: ccm
+      POSTGRES_PASSWORD: ccm_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  api:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.api
+    environment:
+      API_ADDR: ":8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  postgres_data:
+  redis_data:

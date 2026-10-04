@@ -50,12 +50,13 @@ func CalculateSessionPeriodReward(
 		return domain.Reward{}, err
 	}
 
+	key := string(input.Session.ID) + ":" + input.PeriodKey
 	return domain.Reward{
-		ID:              domain.RewardID(input.Session.ID + ":" + input.PeriodKey),
+		ID:              domain.RewardID(key),
 		MiningSessionID: input.Session.ID,
 		Quantity:        quantity,
 		PeriodKey:       input.PeriodKey,
-		IdempotencyKey:  input.Session.ID + ":" + input.PeriodKey,
+		IdempotencyKey:  key,
 		PolicyVersion:   policy.Version,
 	}, nil
 }

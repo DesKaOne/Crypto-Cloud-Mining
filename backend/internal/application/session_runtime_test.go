@@ -10,9 +10,9 @@ import (
 
 type runtimeStore struct {
 	started, paused, resumed, finished bool
-	interval                            domain.MiningInterval
-	endedAt                             time.Time
-	status                              string
+	interval                           domain.MiningInterval
+	endedAt                            time.Time
+	status                             string
 }
 
 func (s *runtimeStore) Start(_ context.Context, _ domain.MiningSession, interval domain.MiningInterval) error {
@@ -101,9 +101,9 @@ func TestCalculateSessionPeriodRewardRejectsPolicyMismatch(t *testing.T) {
 	end := time.Unix(1, 0).UTC()
 	start := time.Unix(0, 0).UTC()
 	_, err := CalculateSessionPeriodReward(context.Background(), SessionRewardInput{
-		Session: domain.MiningSession{ID: "session-1"},
+		Session:   domain.MiningSession{ID: "session-1"},
 		Intervals: []domain.MiningInterval{{StartedAt: start, EndedAt: &end}},
-		Hashrate: "1", RewardPerHash: "1", PolicyVersion: 2, PeriodKey: "period-1",
+		Hashrate:  "1", RewardPerHash: "1", PolicyVersion: 2, PeriodKey: "period-1",
 	}, domain.MiningRewardPolicy{Version: 1}, end)
 	if err == nil {
 		t.Fatal("expected policy mismatch error")

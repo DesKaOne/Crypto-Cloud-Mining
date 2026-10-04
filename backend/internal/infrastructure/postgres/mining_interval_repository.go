@@ -51,10 +51,10 @@ func (r MiningIntervalRepository) ListBySession(ctx context.Context, sessionID d
 			return nil, err
 		}
 		intervals = append(intervals, domain.MiningInterval{
-			ID: domain.MiningIntervalID(id),
+			ID:        domain.MiningIntervalID(id),
 			SessionID: domain.MiningSessionID(session),
 			StartedAt: startedAt.UTC(),
-			EndedAt: endedAt,
+			EndedAt:   endedAt,
 		})
 	}
 	if err := rows.Err(); err != nil {

@@ -1,6 +1,6 @@
 # Phase 0 Foundation
 
-Phase 0 now contains 11 milestones.
+Phase 0 contains 11 milestones.
 
     01 Repository Audit                  DONE
     02 Architecture Baseline             DONE
@@ -14,6 +14,12 @@ Phase 0 now contains 11 milestones.
     10 Security + Observability          DONE
     11 Commercial License Foundation     DONE
 
+## Release Gate
+
+Phase 0 architecture review: PASS WITH EXPLICIT PHASE-1 FOLLOW-UPS.
+
+See release-gate.md for the cross-cutting review, accepted limitations, and Phase 1 follow-ups.
+
 This status means the architectural foundation and documented boundaries exist. It does not mean production authentication, blockchain settlement, licensing portal, payment processing, or complete commercial infrastructure are implemented.
 
-Before Phase 1 begins, review milestones 01-11 together and perform the Phase 0 release gate.
+Phase 1 must preserve the Phase 0 boundaries rather than bypassing them for implementation convenience.

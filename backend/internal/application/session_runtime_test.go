@@ -10,9 +10,9 @@ import (
 
 type runtimeStore struct {
 	started, paused, resumed, finished bool
-		interval                           domain.MiningInterval
-		endedAt                            time.Time
-		status                             string
+	interval                           domain.MiningInterval
+	endedAt                            time.Time
+	status                             string
 }
 
 func (s *runtimeStore) Start(_ context.Context, _ domain.MiningSession, interval domain.MiningInterval) error {

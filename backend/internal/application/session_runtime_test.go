@@ -10,9 +10,9 @@ import (
 
 type runtimeStore struct {
 	started, paused, resumed, finished bool
-	interval                           domain.MiningInterval
-	endedAt                            time.Time
-	status                             string
+	interval                            domain.MiningInterval
+	endedAt                             time.Time
+	status                              string
 }
 
 func (s *runtimeStore) Start(_ context.Context, _ domain.MiningSession, interval domain.MiningInterval) error {
@@ -81,7 +81,7 @@ func TestCalculateSessionPeriodRewardUsesOnlyActiveIntervals(t *testing.T) {
 	resume := start.Add(20 * time.Minute)
 	end := start.Add(30 * time.Minute)
 	reward, err := CalculateSessionPeriodReward(context.Background(), SessionRewardInput{
-		Session: domain.MiningSession{ID: "session-1"},
+		Session:   domain.MiningSession{ID: "session-1"},
 		Intervals: []domain.MiningInterval{
 			{StartedAt: start, EndedAt: &pause},
 			{StartedAt: resume, EndedAt: &end},

@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrMiningPlanInactive = errors.New("mining plan is inactive")
+	ErrMiningPlanInactive      = errors.New("mining plan is inactive")
 	ErrInvalidMiningTransition = errors.New("invalid mining session transition")
 )
 

@@ -1,7 +1,16 @@
 # API Contracts
 
-Shared API contract definitions belong here.
+The API contract is the compatibility boundary between backend, Flutter, Telegram Mini App, and future integrations.
 
-The contract layer is intended to keep Flutter, Telegram Mini App, backend, and future integrations synchronized.
+## Rules
 
-Phase 0 defines the location only; endpoint implementation comes later.
+- OpenAPI is the source contract for HTTP APIs.
+- API versioning starts at /api/v1.
+- Response envelopes use data for successful resource responses.
+- Errors use a stable error.code plus human-readable error.message.
+- Financial quantities are strings containing exact decimal values.
+- Mutating/retryable operations require Idempotency-Key.
+- Server-authoritative fields such as timestamps, reward quantities, balances, and plan versions are not accepted from clients.
+- Authentication is transport-level; authorization remains an application-layer decision.
+
+The contract is intentionally small in Phase 0. Endpoint coverage expands only when the corresponding use case is implemented.

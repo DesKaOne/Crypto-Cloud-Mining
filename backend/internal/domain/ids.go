@@ -6,7 +6,8 @@ type UserID string
 type AssetID string
 type MiningPlanID string
 type MiningSessionID string
+type MiningIntervalID string
 type RewardID string
 type WalletID string
-type LedgerEntryID string
 type TransactionID string
+type LedgerEntryID string

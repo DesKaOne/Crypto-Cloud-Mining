@@ -11,6 +11,8 @@ var (
 )
 
 type MiningInterval struct {
+	ID        MiningIntervalID
+	SessionID MiningSessionID
 	StartedAt time.Time
 	EndedAt   *time.Time
 }

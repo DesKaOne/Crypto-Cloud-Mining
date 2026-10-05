@@ -16,8 +16,8 @@ func (s RewardSettlementStore) Begin(ctx context.Context) (*sql.Tx, error) {
 }
 
 type RewardSettlementStore struct {
-	DB                  DB
-	UserAccount         string
+	DB                     DB
+	UserAccount            string
 	MiningLiabilityAccount string
 }
 

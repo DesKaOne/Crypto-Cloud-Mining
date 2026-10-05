@@ -14,6 +14,8 @@ var ErrTransactionBegin = errors.New("postgres transaction begin failed")
 
 type DB interface {
 	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }
 
 type MiningRuntimeStore struct {
@@ -25,6 +27,55 @@ func (s MiningRuntimeStore) Begin(ctx context.Context) (*sql.Tx, error) {
 		return nil, ErrTransactionBegin
 	}
 	return s.DB.BeginTx(ctx, nil)
+}
+
+func (s MiningRuntimeStore) GetByID(ctx context.Context, sessionID domain.MiningSessionID) (*domain.MiningSession, error) {
+	if sessionID == "" {
+		return nil, domain.ErrInvalidMiningInterval
+	}
+	var session domain.MiningSession
+	var startedAt, endedAt sql.NullTime
+	err := s.DB.QueryRowContext(ctx, "SELECT id, user_id, mining_plan_id, plan_version, status, started_at, ended_at, created_at FROM mining_sessions WHERE id = $1", sessionID).
+		Scan(&session.ID, &session.UserID, &session.MiningPlanID, &session.PlanVersion, &session.Status, &startedAt, &endedAt, &session.CreatedAt)
+	if err != nil {
+		return nil, fmt.Errorf("get mining session: %w", err)
+	}
+	if startedAt.Valid {
+		value := startedAt.Time.UTC()
+		session.StartedAt = &value
+	}
+	if endedAt.Valid {
+		value := endedAt.Time.UTC()
+		session.EndedAt = &value
+	}
+	return &session, nil
+}
+
+func (s MiningRuntimeStore) ListIntervals(ctx context.Context, sessionID domain.MiningSessionID) ([]domain.MiningInterval, error) {
+	rows, err := s.DB.QueryContext(ctx, "SELECT id, mining_session_id, started_at, ended_at FROM mining_intervals WHERE mining_session_id = $1 ORDER BY started_at, id", sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("list mining intervals: %w", err)
+	}
+	defer rows.Close()
+
+	var intervals []domain.MiningInterval
+	for rows.Next() {
+		var interval domain.MiningInterval
+		var endedAt sql.NullTime
+		if err := rows.Scan(&interval.ID, &interval.SessionID, &interval.StartedAt, &endedAt); err != nil {
+			return nil, fmt.Errorf("scan mining interval: %w", err)
+		}
+		interval.StartedAt = interval.StartedAt.UTC()
+		if endedAt.Valid {
+			value := endedAt.Time.UTC()
+			interval.EndedAt = &value
+		}
+		intervals = append(intervals, interval)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate mining intervals: %w", err)
+	}
+	return intervals, nil
 }
 
 func (s MiningRuntimeStore) Start(ctx context.Context, session domain.MiningSession, interval domain.MiningInterval) error {

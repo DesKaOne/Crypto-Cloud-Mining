@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS ledger_entries;
+DROP TABLE IF EXISTS rewards;
+DROP TABLE IF EXISTS mining_sessions;
+DROP TABLE IF EXISTS mining_plans;
+DROP TABLE IF EXISTS assets;
+DROP TABLE IF EXISTS users;

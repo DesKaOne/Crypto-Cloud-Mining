@@ -1,0 +1,230 @@
+openapi: 3.0.3
+info:
+  title: Crypto Cloud Mining API
+  version: 0.1.0
+  description: Phase 0 API contract baseline.
+servers:
+  - url: /api/v1
+tags:
+  - name: Mining
+  - name: Wallet
+  - name: Assets
+paths:
+  /assets:
+    get:
+      tags: [Assets]
+      operationId: listAssets
+      responses:
+        "200":
+          description: Supported assets
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Asset"
+  /mining/plans:
+    get:
+      tags: [Mining]
+      operationId: listMiningPlans
+      responses:
+        "200":
+          description: Active mining plans
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningPlanListResponse"
+  /mining/sessions:
+    post:
+      tags: [Mining]
+      operationId: startMiningSession
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartMiningSessionRequest"
+      responses:
+        "201":
+          description: Mining session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningSessionResponse"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /mining/sessions/{sessionId}:
+    parameters:
+      - $ref: "#/components/parameters/SessionId"
+    get:
+      tags: [Mining]
+      operationId: getMiningSession
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Mining session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningSessionResponse"
+    post:
+      tags: [Mining]
+      operationId: changeMiningSession
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeMiningSessionRequest"
+      responses:
+        "200":
+          description: Updated mining session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningSessionResponse"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /wallets/{assetCode}/balance:
+    parameters:
+      - $ref: "#/components/parameters/AssetCode"
+    get:
+      tags: [Wallet]
+      operationId: getWalletBalance
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Asset wallet balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BalanceResponse"
+components:
+  parameters:
+    AssetCode:
+      name: assetCode
+      in: path
+      required: true
+      schema:
+        type: string
+        example: BTC
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 128
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Asset:
+      type: object
+      required: [id, code, name, decimals, enabled]
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string }
+        name: { type: string }
+        decimals: { type: integer, minimum: 0, maximum: 36 }
+        enabled: { type: boolean }
+    MiningPlan:
+      type: object
+      required: [id, assetId, version, status]
+      properties:
+        id: { type: string, format: uuid }
+        assetId: { type: string, format: uuid }
+        version: { type: integer, minimum: 1 }
+        status: { type: string, enum: [active, inactive] }
+    MiningPlanListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/MiningPlan" }
+    StartMiningSessionRequest:
+      type: object
+      required: [miningPlanId]
+      properties:
+        miningPlanId: { type: string, format: uuid }
+    ChangeMiningSessionRequest:
+      type: object
+      required: [action]
+      properties:
+        action:
+          type: string
+          enum: [pause, resume, complete, cancel]
+    MiningSession:
+      type: object
+      required: [id, miningPlanId, planVersion, status, startedAt]
+      properties:
+        id: { type: string, format: uuid }
+        miningPlanId: { type: string, format: uuid }
+        planVersion: { type: integer }
+        status:
+          type: string
+          enum: [pending, active, paused, completed, cancelled]
+        startedAt: { type: string, format: date-time }
+        endedAt: { type: string, format: date-time, nullable: true }
+    MiningSessionResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: "#/components/schemas/MiningSession" }
+    BalanceResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [assetCode, quantity]
+          properties:
+            assetCode: { type: string }
+            quantity:
+              type: string
+              description: Exact decimal quantity; never represented as floating point.
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            requestId: { type: string }
+  responses:
+    ValidationError:
+      description: Validation failure
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+    Conflict:
+      description: State or idempotency conflict
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }

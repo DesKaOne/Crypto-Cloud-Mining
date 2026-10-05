@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS mining_session_intervals_session_started_idx;
+DROP INDEX IF EXISTS mining_session_intervals_one_open_idx;
+DROP TABLE IF EXISTS mining_session_intervals;

@@ -1,0 +1,12 @@
+FROM golang:1.24-alpine AS build
+
+WORKDIR /src
+COPY go.mod ./
+COPY . .
+RUN go build -o /out/worker ./worker
+
+FROM alpine:3.22
+RUN adduser -D -H app
+USER app
+COPY --from=build /out/worker /worker
+ENTRYPOINT ["/worker"]

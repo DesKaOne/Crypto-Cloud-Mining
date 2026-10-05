@@ -15,20 +15,11 @@ func (uc CalculateReward) Execute(ctx context.Context, session domain.MiningSess
 	return uc.Calculator.Calculate(ctx, session, periodKey)
 }
 
-// PostReward persists the reward identity and posts its financial effect.
-// The infrastructure implementation must make the persistence boundary atomic.
+// PostReward persists the reward and its financial effect through one atomic boundary.
 type PostReward struct {
-	Rewards RewardStore
-	Ledger  LedgerPoster
+	Settlement RewardSettlement
 }
 
 func (uc PostReward) Execute(ctx context.Context, reward domain.Reward) error {
-	created, err := uc.Rewards.CreateIfAbsent(ctx, reward)
-	if err != nil {
-		return err
-	}
-	if !created {
-		return nil
-	}
-	return uc.Ledger.PostReward(ctx, reward)
+	return uc.Settlement.SettleReward(ctx, reward)
 }

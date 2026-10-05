@@ -20,8 +20,6 @@ type SessionRewardInput struct {
 	PeriodKey     string
 }
 
-// MiningSessionRuntimeStore owns the transaction boundary for session lifecycle changes.
-// Implementations must make each operation atomic with its corresponding interval mutation.
 type MiningSessionRuntimeStore interface {
 	Start(ctx context.Context, session domain.MiningSession, interval domain.MiningInterval) error
 	Pause(ctx context.Context, sessionID domain.MiningSessionID, endedAt time.Time) error
@@ -78,10 +76,21 @@ func CalculateSessionPeriodReward(ctx context.Context, input SessionRewardInput,
 	if err != nil {
 		return domain.Reward{}, err
 	}
-	quantity, err := policy.CalculateMiningReward(domain.MiningRewardInput{Hashrate: input.Hashrate, DurationSeconds: seconds, RewardPerHashSec: input.RewardPerHash})
+	quantity, err := policy.CalculateMiningReward(domain.MiningRewardInput{
+		Hashrate:         input.Hashrate,
+		DurationSeconds:  seconds,
+		RewardPerHashSec: input.RewardPerHash,
+	})
 	if err != nil {
 		return domain.Reward{}, err
 	}
 	key := string(input.Session.ID) + ":" + input.PeriodKey
-	return domain.Reward{ID: domain.RewardID(key), MiningSessionID: input.Session.ID, Quantity: quantity, PeriodKey: input.PeriodKey, IdempotencyKey: key, PolicyVersion: policy.Version, CreatedAt: now.UTC()}, nil
+	return domain.Reward{
+		MiningSessionID: input.Session.ID,
+		Quantity:        quantity,
+		PeriodKey:       input.PeriodKey,
+		IdempotencyKey:  key,
+		PolicyVersion:   policy.Version,
+		CreatedAt:       now.UTC(),
+	}, nil
 }

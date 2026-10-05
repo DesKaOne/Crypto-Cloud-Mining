@@ -45,11 +45,11 @@ func TestFixedRewardPeriodUsesDeterministicBoundaries(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	wantStart := time.Date(2026, 10, 5, 8, 0, 0, 0, time.UTC)
+	wantStart := time.Date(2026, 10, 5, 1, 0, 0, 0, time.UTC)
 	if !period.Start.Equal(wantStart) || !period.End.Equal(wantStart.Add(time.Hour)) {
 		t.Fatalf("period = %#v", period)
 	}
-	if period.Key() != "2026-10-05T08:00:00Z/2026-10-05T09:00:00Z" {
+	if period.Key() != "2026-10-05T01:00:00Z/2026-10-05T02:00:00Z" {
 		t.Fatalf("unexpected period key: %q", period.Key())
 	}
 }

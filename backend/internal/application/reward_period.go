@@ -11,7 +11,7 @@ import (
 const DefaultRewardPeriod = time.Hour
 
 var (
-	ErrInvalidRewardPeriod = errors.New("invalid reward period")
+	ErrInvalidRewardPeriod   = errors.New("invalid reward period")
 	ErrRewardPeriodNotClosed = errors.New("reward period is not closed")
 )
 

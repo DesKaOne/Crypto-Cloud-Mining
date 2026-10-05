@@ -8,6 +8,13 @@ import (
 	"github.com/DesKaOne/Crypto-Cloud-Mining/backend/internal/domain"
 )
 
+func (s RewardSettlementStore) Begin(ctx context.Context) (*sql.Tx, error) {
+	if s.DB == nil {
+		return nil, ErrTransactionBegin
+	}
+	return s.DB.BeginTx(ctx, nil)
+}
+
 type RewardSettlementStore struct {
 	DB                  DB
 	UserAccount         string
